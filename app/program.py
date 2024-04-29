@@ -1,6 +1,6 @@
 class Node:
-    def __init__(self, data: object) -> None:
-        self.data = data
+    def __init__(self) -> None:
+        self.data = None
         self.prev = None
         self.next = None
 
@@ -12,50 +12,29 @@ class Node:
 
 
 class Program:
-    def __init__(self, nodes: list = None) -> None:
-        # Initialize the linked list
-        self.head = None
-        self.tail = None
-
-        # Add the nodes to the linked list from eval(rpr())
-        if nodes is not None:
-            for node in nodes:
-                self.add(node.data)
-
-        # Initialize the linked list with a None node and select as pointer
-        self.add(None)
+    def __init__(self) -> None:
+        self.head = Node()
+        self.tail = self.head
         self.pointer = self.head
 
-    def add(self, data: object) -> None:
-        new_node = Node(data)
+    def add(self) -> None:
+        new_node = Node()
 
-        if self.head is None:
-            self.head = new_node
+        if self.pointer.next is None:
+            self.pointer.next = new_node
+            new_node.prev = self.pointer
             self.tail = new_node
-            return
-
-        self.tail.next = new_node
-        new_node.prev = self.tail
-        self.tail = new_node
-
-    def add_here(self, data: object) -> None:
-        new_node = Node(data)
-
-        if self.pointer is self.head:
-            self.head = new_node
-            new_node.next = self.pointer
-            self.pointer.prev = new_node
-            self.pointer = new_node
         else:
-            new_node.prev = self.pointer.prev
-            new_node.next = self.pointer
-            self.pointer.prev.next = new_node
-            self.pointer.prev = new_node
-            self.pointer = new_node
+            new_node.next = self.pointer.next
+            new_node.prev = self.pointer
+            self.pointer.next.prev = new_node
+            self.pointer.next = new_node
 
-    def bulk(self, amount: int) -> None:
+        self.pointer = new_node
+
+    def bulk_add(self, amount: int) -> None:
         for _ in range(amount):
-            self.add(None)
+            self.add()
 
     def remove(self) -> None:
         if self.pointer is self.head:
@@ -83,60 +62,27 @@ class Program:
                     raise IndexError("Index out of range")
                 self.pointer = self.pointer.prev
 
-    def jump(self, location: int | str) -> None:
-        # Go to end
-        if location == "/":
-            self.pointer = self.tail
+    def jump(self, index: int) -> None:
+        node = self.head
 
-        # Go to index
-        elif isinstance(location, int):
-            node = self.head
+        for _ in range(index):
+            if node is None:
+                raise IndexError("Index out of range")
+            node = node.next
 
-            for _ in range(location):
-                if node is None:
-                    raise IndexError("Index out of range")
-                node = node.next
-
-            self.pointer = node
-
-        # Go next or prev
-        elif "+" in location or "-" in location:
-            operand = location[0]
-            amount = location[1:]
-
-            if len(amount) == 0:
-                amount = 1
-            elif not amount.isdigit():
-                raise SyntaxError(f"Invalid move command: {location}")
-
-            node = self.pointer
-
-            for _ in range(int(amount)):
-                if operand == "+":
-                    node = node.next
-                else:
-                    node = node.prev
-
-                if node is None:
-                    raise IndexError("Index out of range")
-
-            self.pointer = node
-
-        # Not recognized
-        else:
-            raise SyntaxError(f"Unrecognized move command: {location}")
+        self.pointer = node
 
     def set(self, data: object) -> None:
         self.pointer.data = data
 
-    def get(self, location: int | str = None) -> object:
-        if location is None:
+    def get(self, index: int | str = None) -> object:
+        if index is None:
             return self.pointer.data
 
         original_pointer = self.pointer  # Save current pointer to go back
 
-        # Temporarily move to the location pointer and get it's data
-        self.jump(location)
+        # Temporarily move to the index pointer and get it's data
+        self.jump(index)
         data = self.pointer.data
 
         self.pointer = original_pointer  # Go back to the original pointer
@@ -174,4 +120,19 @@ class Program:
 
 
 if __name__ == "__main__":
-    pass
+    program = Program()
+
+    print(program)
+    program.add()
+    program.set(1)
+    print(program)
+    program.jump(0)
+    print(program)
+    program.set(2)
+    program.bulk_add(3)
+    program.remove()
+    print(program)
+    program.move(-1)
+    program.remove()
+    print(program)
+
