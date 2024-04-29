@@ -1,0 +1,15 @@
+NOP
+MEM 10
+JMP *0
+MOV 2
+SET 4
+PRN
+MOV -2
+SET Hello
+PRN
+JMP *4
+MEM 1
+DEL
+SET Hello, World!
+PRN
+DBG

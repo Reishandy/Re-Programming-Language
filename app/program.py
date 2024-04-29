@@ -54,12 +54,12 @@ class Program:
         if amount > 0:
             for _ in range(amount):
                 if self.pointer.next is None:
-                    raise IndexError("Index out of range")
+                    raise IndexError(f"Index out of range: MOV {amount}")
                 self.pointer = self.pointer.next
         else:
             for _ in range(abs(amount)):
                 if self.pointer.prev is None:
-                    raise IndexError("Index out of range")
+                    raise IndexError(f"Index out of range: MOV {amount}")
                 self.pointer = self.pointer.prev
 
     def jump(self, index: int) -> None:
@@ -67,7 +67,7 @@ class Program:
 
         for _ in range(index):
             if node is None:
-                raise IndexError("Index out of range")
+                raise IndexError(f"Index out of range: JMP *{index}")
             node = node.next
 
         self.pointer = node
@@ -87,6 +87,9 @@ class Program:
 
         self.pointer = original_pointer  # Go back to the original pointer
         return data
+
+    def copy(self, index: int) -> None:
+        self.pointer.data = self.get(index)
 
     def __iter__(self) -> Node:
         node = self.head
@@ -122,17 +125,5 @@ class Program:
 if __name__ == "__main__":
     program = Program()
 
-    print(program)
-    program.add()
-    program.set(1)
-    print(program)
-    program.jump(0)
-    print(program)
-    program.set(2)
-    program.bulk_add(3)
-    program.remove()
-    print(program)
-    program.move(-1)
-    program.remove()
-    print(program)
+    program.bulk_add(10)
 
